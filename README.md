@@ -9,8 +9,11 @@ Stars, plans and notes live in each visitor's browser (localStorage); "Share wit
 
 ## Weekly refresh
 
-1. In a browser tab on https://www.regmovies.com/theatres/regal-old-mill-0758 run `scripts/scrape_regal.js`
-   (it downloads `regal-0758-YYYY-MM-DD.json` to Downloads).
+1. In a browser tab on https://www.regmovies.com/theatres/regal-old-mill-0758 run `scripts/scrape_regal.js`, then call
+   `await window.__regalStep()` until it returns status `done` (it downloads `regal-0758-YYYY-MM-DD.json` to Downloads).
+   It fetches one date every 1.5 s, about 30 s per call, and keeps progress in sessionStorage. Regal's Cloudflare rate
+   limit allows only about 23 requests at a time: on status `blocked`, wait about 10 minutes and call it again.
+   `__regalStep({finish: true})` finalizes early with what was fetched.
 2. `python3 -I build.py queries RAW.json` prints the Rotten Tomatoes lookups still needed.
 3. In a tab on https://www.rottentomatoes.com run `scripts/scrape_rt.js` with `__QUERIES__` replaced by that list; save the returned JSON as RT_NEW.json.
 4. `python3 -I build.py build RAW.json RT_NEW.json` rewrites `data/movies.json` and `data/rt.json`.
