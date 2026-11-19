@@ -69,19 +69,23 @@ main{padding:14px 0 60px}
 .star.on{color:var(--accent)}
 
 /* timeline */
-.tl{overflow:auto;max-height:calc(100vh - 190px);position:relative}
+.tl{overflow:auto;position:relative;overscroll-behavior:contain}
+body.tlmode main{padding-bottom:0}
+body.tlmode footer{display:none}
+body.tlmode .legend{margin:0}
 .tl table{border-collapse:separate;border-spacing:0;table-layout:fixed}
 .tl th,.tl td{padding:0;border-bottom:1px solid var(--line)}
-.tl thead th{position:sticky;top:0;z-index:3;background:var(--panel);font-weight:500;font-size:11px;color:var(--muted);height:38px;vertical-align:bottom;padding-bottom:4px}
+.tl thead th{position:sticky;top:0;z-index:3;background:var(--panel);font-weight:500;font-size:11px;color:var(--muted);height:46px;vertical-align:bottom;padding-bottom:4px}
 .tl .name{position:sticky;left:0;z-index:2;background:var(--panel);min-width:250px;max-width:250px;border-right:1px solid var(--line);text-align:left}
 .tl thead .name{z-index:4;padding-left:12px}
 .tl .row{display:flex;align-items:center;gap:8px;padding:5px 8px 5px 10px;cursor:pointer;height:46px}
 .tl .row img{width:24px;height:36px;object-fit:cover;border-radius:3px;background:var(--soft);flex:none}
 .tl .row .t{flex:1;min-width:0}
 .tl .row .t div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px;font-weight:550}
-.tl .row .t small{display:flex;gap:5px;align-items:center;color:var(--muted);font-size:11.5px}
+.tl .row .t small{display:flex;gap:5px;align-items:center;color:var(--muted);font-size:11.5px;white-space:nowrap;overflow:hidden}
 .tl .day{min-width:var(--dw);max-width:var(--dw);text-align:center;position:relative}
 .tl .day.we{background:color-mix(in srgb,var(--soft) 60%,transparent)}
+.tl thead th.day{position:sticky;top:0;z-index:3}
 .tl thead .day b{display:block;font-size:12px;color:var(--ink);font-weight:600}
 .tl thead .day.today b{color:var(--today)}
 .tl thead .day.m1{border-left:2px solid var(--ink)}
@@ -186,7 +190,6 @@ footer{color:var(--muted);font-size:12px;padding:20px 0 30px;border-top:1px soli
   .brand b{font-size:16px}
   .brand span{display:none}
   .tabs button{padding:6px 9px;font-size:13px}
-  .tl{max-height:calc(100vh - 175px)}
   .tl .name{min-width:132px;max-width:132px}
   .tl .row{padding:4px 6px;gap:6px;height:44px}
   .tl .row img{display:none}
@@ -322,19 +325,20 @@ function updateCount(){const n=plannedShows().filter(o=>o.s.utc>Date.now()/1000)
 // ---------- views ----------
 function render(){
   $$("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===state.view));
+  document.body.classList.toggle("tlmode",state.view==="timeline"); if(state.view==="timeline") scrollTo(0,0);
   $$("#filters .chip").forEach(b=>b.classList.toggle("on",state.kinds.has(b.dataset.k)||state.flags.has(b.dataset.f)));
   store.ui={view:state.view,range:state.range,kinds:[...state.kinds],flags:[...state.flags]}; save();
   ({timeline:vTimeline,month:vMonth,day:vDay,plans:vPlans})[state.view]();
-  reminders();
+  reminders(); if(state.view==="timeline") fitTimeline();
 }
 
 function vTimeline(){
   const today=TODAY(), lastShow=S.length?S[S.length-1].local.slice(0,10):today;
   const spans={"2w":14,"6w":42,"3m":92,"all":Math.max(14,Math.round((parseYmd(lastShow)-parseYmd(today))/864e5)+1)};
   const n=spans[state.range], start=parseYmd(today), days=[...Array(n)].map((_,i)=>ymd(addDays(start,i))), end=days[days.length-1];
-  const dw=state.range==="2w"?52:state.range==="6w"?(innerWidth<760?24:26):(innerWidth<760?14:12);
+  const dw=state.range==="2w"?(innerWidth<760?40:52):state.range==="6w"?(innerWidth<760?24:26):(innerWidth<760?14:12);
   const ms=M.filter(visible).filter(m=>byMovie[m.i].some(s=>s.local.slice(0,10)<=end)).sort((a,b)=>(a.first.localeCompare(b.first))||(b.shows-a.shows));
-  let h=`<div class="toolbar"><h2>What's playing, day by day</h2><div class="seg" id="range">${[["2w","2 weeks"],["6w","6 weeks"],["3m","3 months"],["all","All"]].map(([k,l])=>`<button data-r="${k}" class="${state.range===k?"on":""}">${l}</button>`).join("")}</div></div>`;
+  let h=`<div class="toolbar"><h2>What's playing, day by day</h2><div class="legend"><span><i style="background:var(--bar)"></i>Film</span><span><i style="background:var(--classic)"></i>Classic</span><span><i style="background:var(--event)"></i>Event</span></div><div class="seg" id="range">${[["2w","2 weeks"],["6w","6 weeks"],["3m","3 months"],["all","All"]].map(([k,l])=>`<button data-r="${k}" class="${state.range===k?"on":""}">${l}</button>`).join("")}</div></div>`;
   const nw=innerWidth<760?132:250;
   h+=`<div class="card tl" style="--dw:${dw}px"><table style="width:${nw+n*dw}px"><colgroup><col style="width:${nw}px">${`<col style="width:${dw}px">`.repeat(n)}</colgroup><thead><tr><th class="name">${ms.length} titles</th>`;
   days.forEach((d,i)=>{const x=parseYmd(d),we=x.getDay()%6===0,m1=x.getDate()===1||i===0;
@@ -350,13 +354,17 @@ function vTimeline(){
     h+=`</tr>`;
   }
   if(!ms.length) h+=`<tr><td class="name" style="padding:14px" colspan="${n+1}">Nothing matches these filters.</td></tr>`;
-  h+=`</tbody></table></div><div class="legend"><span><i style="background:var(--bar)"></i>New film (darker = more shows that day)</span><span><i style="background:var(--classic)"></i>Classic / re-release</span><span><i style="background:var(--event)"></i>Event, opera, concert</span></div>`;
+  h+=`</tbody></table></div>`;
   $("#view").innerHTML=h;
+  fitTimeline(); const tl=$(".tl"); if(tl&&state.tlScroll) tl.scrollTop=state.tlScroll; if(tl) tl.onscroll=()=>{state.tlScroll=tl.scrollTop};
   $$("#range button").forEach(b=>b.onclick=()=>{state.range=b.dataset.r;render()});
   $$(".tl .row").forEach(r=>r.onclick=()=>openMovie(+r.dataset.m));
   $$(".tl .cell").forEach(c=>c.onclick=()=>openMovie(+c.dataset.m,c.dataset.d));
 }
 
+// Size the timeline to the rest of the viewport so the page itself doesn't scroll: the date row then stays pinned.
+function fitTimeline(){const t=$(".tl"); if(!t) return; t.style.height=Math.max(260,innerHeight-t.getBoundingClientRect().top-scrollY*0-10)+"px"}
+addEventListener("resize",()=>{if(state.view==="timeline") fitTimeline()});
 function vMonth(){
   const today=TODAY(); if(!state.month) state.month=today.slice(0,7);
   const [Y,Mo]=state.month.split("-").map(Number), first=new Date(Y,Mo-1,1), start=addDays(first,-first.getDay());
