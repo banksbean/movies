@@ -263,7 +263,7 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){} u
 
 // ---------- data ----------
 let D=null, M=[], S=[], byDate={}, byMovie={}, perf={};
-const state={view:store.ui.view||"timeline", range:store.ui.range||"6w", kinds:new Set(store.ui.kinds||[]), flags:new Set(store.ui.flags||[]), q:"", day:null, month:null};
+const state={view:store.ui.view||"timeline", range:store.ui.range||"2w", kinds:new Set(store.ui.kinds||[]), flags:new Set(store.ui.flags||[]), q:"", day:null, month:null};
 
 function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function parseYmd(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
