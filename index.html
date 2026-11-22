@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Old Mill Movies</title>
+<title>Bend Movies</title>
 <meta name="description" content="What's playing in Bend at Regal Old Mill, Tin Pan Theater and McMenamins Old St. Francis: timeline, month view, showtimes, trailers and Rotten Tomatoes scores.">
 <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141210" media="(prefers-color-scheme: dark)">
@@ -235,7 +235,7 @@ footer{color:var(--muted);font-size:12px;padding:20px 0 30px;border-top:1px soli
 <header>
   <div class="wrap">
     <div class="top">
-      <div class="brand"><b>Old Mill Movies</b><span id="sub">Bend movie theaters</span></div>
+      <div class="brand"><b>Bend Movies</b><span id="sub">Bend movie theaters</span></div>
       <nav class="tabs" id="tabs">
         <button data-v="timeline">Timeline</button>
         <button data-v="month">Month</button>
@@ -556,7 +556,7 @@ function downloadIcs(list,name){
   const ev=list.map(s=>["BEGIN:VEVENT",`UID:${s.th===0?"regal-0758-":""}${s.perf}@oldmill-movies`,`DTSTAMP:${now}`,`DTSTART:${utcStamp(s.utc)}`,`DTEND:${utcStamp(endSec(s))}`,
     `SUMMARY:${icsEsc(M[s.m].title+" (movie)")}`,`LOCATION:${icsEsc(where(s))}`,`DESCRIPTION:${icsEsc(details(s))}`,`URL:${bookUrl(s)}`,
     "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Movie in 1 hour","TRIGGER:-PT60M","END:VALARM","END:VEVENT"].map(fold).join("\r\n"));
-  const txt=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Old Mill Movies//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",...ev,"END:VCALENDAR"].join("\r\n");
+  const txt=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Bend Movies//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",...ev,"END:VCALENDAR"].join("\r\n");
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([txt],{type:"text/calendar;charset=utf-8"})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
 }
 

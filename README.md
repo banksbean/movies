@@ -1,4 +1,4 @@
-# Old Mill Movies
+# Bend Movies
 
 A cleaner way to browse what's playing in Bend, OR at three theaters: **Regal Old Mill**, **Tin Pan Theater** and
 **McMenamins Old St. Francis Theater**. Day-by-day timeline, month calendar, daily showtimes, trailers, Rotten Tomatoes
