@@ -69,6 +69,13 @@
 "url": "https://www.rottentomatoes.com/m/cowboys_and_aliens",
 "checked": "2026-11-18"
 },
+"Die Hard|1988": {
+"title": "Die Hard",
+"year": 1988,
+"score": "94",
+"url": "https://www.rottentomatoes.com/m/die_hard",
+"checked": "2026-11-22"
+},
 "Drummer Boy|2026": {
 "title": "Drummer Boy",
 "year": 2026,
@@ -103,6 +110,13 @@
 "score": "",
 "url": "https://www.rottentomatoes.com/m/fing",
 "checked": "2026-11-18"
+},
+"Fjord|2026": {
+"title": "Fjord",
+"year": 2026,
+"score": "91",
+"url": "https://www.rottentomatoes.com/m/fjord",
+"checked": "2026-11-22"
 },
 "Focker-in-Law|2026": {
 "title": "Focker In-Law",
@@ -144,7 +158,7 @@
 "year": 2026,
 "score": "",
 "url": "https://www.rottentomatoes.com/m/hexed_2026",
-"checked": "2026-11-18"
+"checked": "2026-11-22"
 },
 "Hoosiers|1986": {
 "title": "Hoosiers",
@@ -209,6 +223,13 @@
 "url": "https://www.rottentomatoes.com/m/november_1963",
 "checked": "2026-11-18"
 },
+"Paper Tiger|2026": {
+"title": "Paper Tiger",
+"year": 2026,
+"score": "87",
+"url": "https://www.rottentomatoes.com/m/paper_tiger",
+"checked": "2026-11-22"
+},
 "Power Trip|2027": {
 "title": "Power Trip",
 "year": 2026,
@@ -243,6 +264,13 @@
 "score": "47",
 "url": "https://www.rottentomatoes.com/m/the_cat_in_the_hat",
 "checked": "2026-11-18"
+},
+"The Cycle of Love|2026": {
+"title": "The Cycle of Love",
+"year": 2025,
+"score": "100",
+"url": "https://www.rottentomatoes.com/m/the_cycle_of_love",
+"checked": "2026-11-22"
 },
 "The Dark Crystal|1982": {
 "title": "The Dark Crystal",
@@ -327,6 +355,13 @@
 "score": "94",
 "url": "https://www.rottentomatoes.com/m/the_odyssey_2026",
 "checked": "2026-11-18"
+},
+"The Only Living Pickpocket in New York|2026": {
+"title": "The Only Living Pickpocket in New York",
+"year": 2026,
+"score": "98",
+"url": "https://www.rottentomatoes.com/m/the_only_living_pickpocket_in_new_york",
+"checked": "2026-11-22"
 },
 "The World's End|2013": {
 "title": "The World's End",

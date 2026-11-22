@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Old Mill Movies</title>
-<meta name="description" content="What's playing at Regal Old Mill in Bend: timeline, month view, showtimes, trailers and Rotten Tomatoes scores.">
+<meta name="description" content="What's playing in Bend at Regal Old Mill, Tin Pan Theater and McMenamins Old St. Francis: timeline, month view, showtimes, trailers and Rotten Tomatoes scores.">
 <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141210" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
@@ -15,12 +15,14 @@
   --bg:#f6f3ee; --panel:#fffdf9; --ink:#1d1a17; --muted:#6f675e; --line:#e4ddd2; --soft:#efe9df;
   --accent:#c2410c; --accent-ink:#fff; --accent-soft:#fde7d9; --bar:#2f2a25; --bar2:#8a7f73;
   --event:#7c3aed; --classic:#0f766e; --fresh:#16a34a; --rotten:#b45309; --today:#c2410c;
+  --th0:#2563eb; --th1:#be123c; --th2:#a16207;
   --r:10px; --shadow:0 1px 2px rgba(0,0,0,.05),0 6px 24px rgba(0,0,0,.06);
 }
 @media (prefers-color-scheme:dark){:root{
   --bg:#141210; --panel:#1c1916; --ink:#f1ebe3; --muted:#a59b8f; --line:#2e2924; --soft:#24201c;
   --accent:#fb7c3c; --accent-ink:#1a0d05; --accent-soft:#3a2216; --bar:#e9e1d6; --bar2:#7d7368;
   --event:#a78bfa; --classic:#2dd4bf; --fresh:#4ade80; --rotten:#f59e0b; --today:#fb7c3c; --shadow:none;
+  --th0:#60a5fa; --th1:#fb7185; --th2:#facc15;
 }}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -66,6 +68,19 @@ main{padding:14px 0 60px}
 .kind.event{color:var(--event);background:color-mix(in srgb,var(--event) 13%,transparent)}
 .kind.classic{color:var(--classic);background:color-mix(in srgb,var(--classic) 13%,transparent)}
 .star{border:0;background:none;font-size:17px;line-height:1;padding:2px 4px;color:var(--muted)}
+/* theatres: one color each */
+.th0{--th:var(--th0)} .th1{--th:var(--th1)} .th2{--th:var(--th2)}
+.chip.thc{display:inline-flex;align-items:center;gap:6px}
+.chip.thc i{width:9px;height:9px;border-radius:50%;background:var(--th);flex:none}
+.chip.thc:not(.on){opacity:.55;text-decoration:line-through;text-decoration-color:var(--muted)}
+.chip.thc.on{background:color-mix(in srgb,var(--th) 16%,var(--panel));color:var(--ink);border-color:var(--th)}
+.thb{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:1px 6px;border-radius:4px;color:var(--th);background:color-mix(in srgb,var(--th) 13%,transparent);white-space:nowrap}
+.thd{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--th);flex:none}
+.throw{display:flex;gap:8px;align-items:flex-start;margin-top:6px}
+.throw:first-child{margin-top:0}
+.throw>.thb{margin-top:7px;flex:none;width:108px;justify-content:center}
+@media (max-width:760px){.throw{flex-direction:column;gap:4px}.throw>.thb{margin-top:0;width:auto}}
+.time.th0,.time.th1,.time.th2{border-left:3px solid var(--th)}
 .star.on{color:var(--accent)}
 
 /* timeline */
@@ -118,6 +133,7 @@ body.tlmode .legend{margin:0}
 .month .it.k-event{color:var(--event);background:color-mix(in srgb,var(--event) 10%,transparent)}
 .month .it.k-classic{color:var(--classic);background:color-mix(in srgb,var(--classic) 10%,transparent)}
 .month .it.plan{outline:1.5px solid var(--accent)}
+.month .it .thd{width:6px;height:6px;margin-right:3px;vertical-align:1px}
 .month .more{font-size:11px;color:var(--muted);padding-left:5px}
 .month .dots{display:none}
 
@@ -219,7 +235,7 @@ footer{color:var(--muted);font-size:12px;padding:20px 0 30px;border-top:1px soli
 <header>
   <div class="wrap">
     <div class="top">
-      <div class="brand"><b>Old Mill Movies</b><span id="sub">Regal Old Mill · Bend</span></div>
+      <div class="brand"><b>Old Mill Movies</b><span id="sub">Bend movie theaters</span></div>
       <nav class="tabs" id="tabs">
         <button data-v="timeline">Timeline</button>
         <button data-v="month">Month</button>
@@ -229,6 +245,8 @@ footer{color:var(--muted);font-size:12px;padding:20px 0 30px;border-top:1px soli
     </div>
     <div class="filters" id="filters">
       <input class="search" id="q" type="search" placeholder="Search titles, cast…" autocomplete="off">
+      <span class="sep"></span>
+      <span id="thchips" style="display:contents"></span>
       <span class="sep"></span>
       <button class="chip" data-k="film">New films</button>
       <button class="chip" data-k="classic">Classics</button>
@@ -265,8 +283,8 @@ const store=(()=>{let s;try{s=JSON.parse(localStorage.getItem(KEY))||{}}catch(e)
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){} updateCount()}
 
 // ---------- data ----------
-let D=null, M=[], S=[], byDate={}, byMovie={}, perf={};
-const state={view:store.ui.view||"timeline", range:store.ui.range||"2w", kinds:new Set(store.ui.kinds||[]), flags:new Set(store.ui.flags||[]), q:"", day:null, month:null};
+let D=null, M=[], S=[], ALL=[], byDate={}, byMovie={}, perf={}, TH=[];
+const state={view:store.ui.view||"timeline", range:store.ui.range||"2w", kinds:new Set(store.ui.kinds||[]), flags:new Set(store.ui.flags||[]), thOff:new Set(store.ui.thOff||[]), q:"", day:null, month:null};
 
 function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function parseYmd(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
@@ -282,20 +300,41 @@ function isNew(m,d){return m.kind==="film"&&m.first===d&&m.opens>=ymd(addDays(pa
 function kindTag(m){return m.kind==="film"?"":`<span class="kind ${m.kind}">${m.kind==="event"?"Event":"Classic"}</span>`}
 function runtime(m){return m.runtime?Math.floor(m.runtime/60)+"h "+(m.runtime%60)+"m":""}
 function rating(m){return m.rating?m.rating.replace("PG13","PG-13").replace("NC17","NC-17"):""}
-function bookUrl(s){return `https://www.regmovies.com/movies/${D.slugs[s.slug]}?site=${D.theatre.code}&id=${s.perf}&date=${s.local.slice(5,7)}-${s.local.slice(8,10)}-${s.local.slice(0,4)}`}
+function bookUrl(s){const l=D.links[s.slug]; if(/^https?:/.test(l)) return l;
+  return `https://www.regmovies.com/movies/${l}?site=${TH[s.th].code}&id=${s.perf}&date=${s.local.slice(5,7)}-${s.local.slice(8,10)}-${s.local.slice(0,4)}`}
+// theatre helpers
+const thName=s=>TH[s.th].name, thShort=i=>TH[i].short||TH[i].name;
+function thBadge(i){return `<span class="thb th${i}" title="${esc(TH[i].name)}">${esc(thShort(i))}</span>`}
+function thDots(m){return (m.theatres||[0]).filter(i=>!state.thOff.has(TH[i].id)).map(i=>`<span class="thd th${i}" title="${esc(TH[i].name)}"></span>`).join("")}
+function thOn(i){return !state.thOff.has(TH[i].id)}
+function bookLabel(s){return s.th===0?"🎟 Book on Regal":`🎟 Tickets at ${thShort(s.th)}`}
+function audText(s){return s.aud!==""&&s.aud!=null?`Auditorium ${s.aud}`:""}
+function multiTh(){return TH.filter((_,i)=>thOn(i)).length>1}
 function trailerUrl(m){return m.trailer||("https://www.youtube.com/results?search_query="+encodeURIComponent(m.title.replace(/^CUT26:\s*/,"")+" trailer"))}
 
 function ingest(d){
-  D=d; M=d.movies; byDate={}; byMovie={}; perf={};
-  S=d.shows.map(a=>({m:a[0],local:a[1],utc:a[2],aud:a[3],tags:a[4],slug:a[5],perf:a[6]}));
+  if(!d.theatres){d.theatres=[Object.assign({id:"regal",short:"Old Mill"},d.theatre)]; d.links=d.slugs; d.movies.forEach(m=>{m.theatres=[0];m.pages=[[0,m.regal]]})} // older data format
+  D=d; M=d.movies; TH=d.theatres; perf={};
+  ALL=d.shows.map(a=>({m:a[0],local:a[1],utc:a[2],aud:a[3],tags:a[4],slug:a[5],perf:String(a[6]),th:a[7]||0}));
   const now=bendNow();
-  S=S.filter(s=>s.local>=now.slice(0,10));
-  for(const s of S){(byDate[s.local.slice(0,10)] ||= []).push(s);(byMovie[s.m] ||= []).push(s);perf[s.perf]=s}
-  M.forEach((m,i)=>{m.i=i; m.hay=(m.title+" "+m.cast+" "+m.directors+" "+m.genre).toLowerCase();
-    m.big=(byMovie[i]||[]).some(s=>/IMAX|3D|ScreenX/.test(s.tags))});
+  ALL=ALL.filter(s=>s.local>=now.slice(0,10));
+  for(const s of ALL) perf[s.perf]=s;
+  M.forEach((m,i)=>{m.i=i; m.hay=(m.title+" "+m.cast+" "+m.directors+" "+m.genre+" "+(m.theatres||[]).map(j=>TH[j].name).join(" ")).toLowerCase()});
+  applyTheatres();
   const lasts=M.filter(m=>m.kind==="film"&&m.days>=3).map(m=>m.last).sort(); D.horizon=lasts[Math.floor(lasts.length/2)]||"9999";
-  $("#sub").textContent=`${d.theatre.name} · Bend · updated ${niceDate(d.updated.slice(0,10))}`;
-  $("#foot").innerHTML=`Showtimes from <a href="${esc(d.theatre.url)}" target="_blank" rel="noopener">Regal Old Mill</a> (${esc(d.theatre.address)}), refreshed weekly; last pull ${esc(d.updated.replace("T"," "))} Pacific. Times can change after a refresh, so the Regal page is the final word. Scores from Rotten Tomatoes. Stars and plans are saved only in this browser. Works offline once loaded.`;
+  $("#sub").textContent=`Bend · ${TH.map(t=>t.short).join(" · ")} · updated ${niceDate(d.updated.slice(0,10))}`;
+  $("#foot").innerHTML=`Showtimes from ${TH.map(t=>`<a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.name)}</a> (${esc(t.address)})`).join(", ")}, refreshed weekly; last build ${esc(d.updated.replace("T"," "))} Pacific. Times can change after a refresh, so each theater's own page is the final word. Scores from Rotten Tomatoes. Stars and plans are saved only in this browser. Works offline once loaded.`;
+  $("#thchips").innerHTML=TH.map((t,i)=>`<button class="chip thc th${i}" data-th="${esc(t.id)}" title="Show or hide ${esc(t.name)}"><i></i>${esc(t.short)}</button>`).join("");
+  $$("#thchips .chip").forEach(b=>b.onclick=()=>{const id=b.dataset.th;
+    if(state.thOff.has(id)) state.thOff.delete(id); else {state.thOff.add(id); if(state.thOff.size>=TH.length){state.thOff.clear();toast("Showing all theaters")}}
+    applyTheatres(); render()});
+}
+// Rebuild the per-day and per-movie indexes from the theatres switched on.
+function applyTheatres(){
+  byDate={}; byMovie={};
+  S=ALL.filter(s=>thOn(s.th));
+  for(const s of S){(byDate[s.local.slice(0,10)] ||= []).push(s);(byMovie[s.m] ||= []).push(s)}
+  M.forEach((m,i)=>{m.big=(byMovie[i]||[]).some(s=>/IMAX|3D|ScreenX/.test(s.tags))});
 }
 
 function visible(m){
@@ -326,8 +365,8 @@ function updateCount(){const n=plannedShows().filter(o=>o.s.utc>Date.now()/1000)
 function render(){
   $$("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===state.view));
   document.body.classList.toggle("tlmode",state.view==="timeline"); if(state.view==="timeline") scrollTo(0,0);
-  $$("#filters .chip").forEach(b=>b.classList.toggle("on",state.kinds.has(b.dataset.k)||state.flags.has(b.dataset.f)));
-  store.ui={view:state.view,range:state.range,kinds:[...state.kinds],flags:[...state.flags]}; save();
+  $$("#filters .chip").forEach(b=>b.classList.toggle("on",b.dataset.th?!state.thOff.has(b.dataset.th):(state.kinds.has(b.dataset.k)||state.flags.has(b.dataset.f))));
+  store.ui={view:state.view,range:state.range,kinds:[...state.kinds],flags:[...state.flags],thOff:[...state.thOff]}; save();
   ({timeline:vTimeline,month:vMonth,day:vDay,plans:vPlans})[state.view]();
   reminders(); if(state.view==="timeline") fitTimeline();
 }
@@ -338,7 +377,7 @@ function vTimeline(){
   const n=spans[state.range], start=parseYmd(today), days=[...Array(n)].map((_,i)=>ymd(addDays(start,i))), end=days[days.length-1];
   const dw=state.range==="2w"?(innerWidth<760?40:52):state.range==="6w"?(innerWidth<760?24:26):(innerWidth<760?14:12);
   const ms=M.filter(visible).filter(m=>byMovie[m.i].some(s=>s.local.slice(0,10)<=end)).sort((a,b)=>(a.first.localeCompare(b.first))||(b.shows-a.shows));
-  let h=`<div class="toolbar"><h2>What's playing, day by day</h2><div class="legend"><span><i style="background:var(--bar)"></i>Film</span><span><i style="background:var(--classic)"></i>Classic</span><span><i style="background:var(--event)"></i>Event</span></div><div class="seg" id="range">${[["2w","2 weeks"],["6w","6 weeks"],["3m","3 months"],["all","All"]].map(([k,l])=>`<button data-r="${k}" class="${state.range===k?"on":""}">${l}</button>`).join("")}</div></div>`;
+  let h=`<div class="toolbar"><h2>What's playing, day by day</h2><div class="legend"><span><i style="background:var(--bar)"></i>Film</span><span><i style="background:var(--classic)"></i>Classic</span><span><i style="background:var(--event)"></i>Event</span>${thLegend()}</div><div class="seg" id="range">${[["2w","2 weeks"],["6w","6 weeks"],["3m","3 months"],["all","All"]].map(([k,l])=>`<button data-r="${k}" class="${state.range===k?"on":""}">${l}</button>`).join("")}</div></div>`;
   const nw=innerWidth<760?132:250;
   h+=`<div class="card tl" style="--dw:${dw}px"><table style="width:${nw+n*dw}px"><colgroup><col style="width:${nw}px">${`<col style="width:${dw}px">`.repeat(n)}</colgroup><thead><tr><th class="name">${ms.length} titles</th>`;
   days.forEach((d,i)=>{const x=parseYmd(d),we=x.getDay()%6===0,m1=x.getDate()===1||i===0;
@@ -347,10 +386,10 @@ function vTimeline(){
   for(const m of ms){
     const cnt={}; byMovie[m.i].forEach(s=>{const d=s.local.slice(0,10);cnt[d]=(cnt[d]||0)+1});
     const mx=Math.max(...Object.values(cnt));
-    h+=`<tr class="k-${m.kind}"><td class="name"><div class="row" data-m="${m.i}"><img loading="lazy" src="${esc(m.poster)}" alt=""><div class="t"><div title="${esc(m.title)}">${store.star[m.id]?"★ ":""}${esc(m.title)}</div><small>${rtBadge(m)}${kindTag(m)}<span>${rating(m)}</span></small></div></div></td>`;
+    h+=`<tr class="k-${m.kind}"><td class="name"><div class="row" data-m="${m.i}"><img loading="lazy" src="${esc(m.poster)}" alt=""><div class="t"><div title="${esc(m.title)}">${store.star[m.id]?"★ ":""}${esc(m.title)}</div><small>${thDots(m)}${rtBadge(m)}${kindTag(m)}<span>${rating(m)}</span></small></div></div></td>`;
     days.forEach((d,i)=>{const x=parseYmd(d),we=x.getDay()%6===0,c=cnt[d];
       const s=c&&!cnt[days[i-1]],e=c&&!cnt[days[i+1]];
-      h+=`<td class="day${we?" we":""}${x.getDate()===1?" m1":""}">${c?`<div class="cell on${s?" s":""}${e?" e":""}" style="--o:${(.45+.55*c/mx).toFixed(2)}" data-m="${m.i}" data-d="${d}" title="${esc(m.title)} · ${niceDate(d)} · ${c} show${c>1?"s":""}"></div>`:""}${d===today?'<div class="todayline"></div>':""}</td>`});
+      h+=`<td class="day${we?" we":""}${x.getDate()===1?" m1":""}">${c?`<div class="cell on${s?" s":""}${e?" e":""}" style="--o:${(.45+.55*c/mx).toFixed(2)}" data-m="${m.i}" data-d="${d}" title="${esc(m.title)} · ${niceDate(d)} · ${c} show${c>1?"s":""}${multiTh()?" · "+[...new Set(byMovie[m.i].filter(s=>s.local.startsWith(d)).map(s=>thShort(s.th)))].join(", "):""}"></div>`:""}${d===today?'<div class="todayline"></div>':""}</td>`});
     h+=`</tr>`;
   }
   if(!ms.length) h+=`<tr><td class="name" style="padding:14px" colspan="${n+1}">Nothing matches these filters.</td></tr>`;
@@ -378,15 +417,17 @@ function vMonth(){
     const list=(byDate[d]||[]), ids=[...new Set(list.map(s=>s.m))].map(j=>M[j]).filter(visible);
     if(!ids.length){h+=`<div class="c empty${out?" out":""}${d===today?" today":""}"><div class="d"><span>${x.getDate()}</span></div></div>`;continue}
     const pl=plannedDays[d]||new Set();
-    const score=m=>(pl.has(m.i)?0:isNew(m,d)?1:m.kind!=="film"?2:store.star[m.id]?3:4);
+    const indie=m=>list.some(s=>s.m===m.i&&s.th!==0);
+    const score=m=>(pl.has(m.i)?0:isNew(m,d)?1:m.kind!=="film"?2:store.star[m.id]?3:indie(m)?3.5:4);
     ids.sort((a,b)=>score(a)-score(b)||b.shows-a.shows);
     const shown=ids.filter(m=>score(m)<4).slice(0,5), rest=ids.length-shown.length;
     h+=`<div class="c${out?" out":""}${d===today?" today":""}" data-d="${d}"><div class="d"><span>${x.getDate()}</span><small>${ids.length} titles</small></div>`;
-    h+=shown.map(m=>`<div class="it ${pl.has(m.i)?"plan ":""}${isNew(m,d)?"new":"k-"+m.kind}" title="${esc(m.title)}">${pl.has(m.i)?"● ":isNew(m,d)?"New: ":""}${esc(m.title.replace(/^CUT26:\s*/,""))}</div>`).join("");
+    const dayTh=m=>multiTh()?[...new Set(list.filter(s=>s.m===m.i).map(s=>s.th))].map(t=>`<span class="thd th${t}"></span>`).join(""):"";
+    h+=shown.map(m=>`<div class="it ${pl.has(m.i)?"plan ":""}${isNew(m,d)?"new":"k-"+m.kind}" title="${esc(m.title)}">${dayTh(m)}${pl.has(m.i)?"● ":isNew(m,d)?"New: ":""}${esc(m.title.replace(/^CUT26:\s*/,""))}</div>`).join("");
     if(rest) h+=`<div class="more">+${rest} ${shown.length?"more ":""}playing</div>`;
     h+=`<div class="dots">${ids.slice(0,12).map(m=>`<i class="${pl.has(m.i)?"plan":isNew(m,d)?"new":"k-"+m.kind}"></i>`).join("")}</div></div>`;
   }
-  h+=`</div><div class="legend"><span><i style="background:var(--accent)"></i>Opening day / your plan</span><span><i style="background:var(--classic)"></i>Classic</span><span><i style="background:var(--event)"></i>Event</span><span><i style="background:var(--bar2)"></i>Other films</span></div>`;
+  h+=`</div><div class="legend"><span><i style="background:var(--accent)"></i>Opening day / your plan</span><span><i style="background:var(--classic)"></i>Classic</span><span><i style="background:var(--event)"></i>Event</span><span><i style="background:var(--bar2)"></i>Other films</span>${thLegend()}</div>`;
   $("#view").innerHTML=h;
   const shift=n=>{const d=new Date(Y,Mo-1+n,1);state.month=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");render()};
   $("#mprev").onclick=()=>shift(-1); $("#mnext").onclick=()=>shift(1);
@@ -402,7 +443,7 @@ function vDay(){
   const ms=Object.keys(groups).map(Number).map(i=>M[i]).filter(visible).sort((a,b)=>(!!store.star[b.id]-!!store.star[a.id])||(+(b.rt||0)-+(a.rt||0))||a.title.localeCompare(b.title));
   h+=`<div class="toolbar"><h2>${niceDate(d,true)}</h2><span class="muted">${ms.length} titles · tap a time to book, plan or add to calendar</span></div><div class="list">`;
   for(const m of ms){
-    h+=`<div class="card film"><img loading="lazy" src="${esc(m.poster)}" alt="" data-m="${m.i}"><div class="b"><h3 data-m="${m.i}">${esc(m.title)}</h3><div class="meta">${rtBadge(m)}${kindTag(m)}<span>${[rating(m),runtime(m),m.genre].filter(Boolean).join(" · ")}</span><button class="star ${store.star[m.id]?"on":""}" data-star="${m.id}" title="Star: remind me">${store.star[m.id]?"★":"☆"}</button></div><div class="times">${groups[m.i].map(s=>timeBtn(s,nowSec)).join("")}</div></div></div>`;
+    h+=`<div class="card film"><img loading="lazy" src="${esc(m.poster)}" alt="" data-m="${m.i}"><div class="b"><h3 data-m="${m.i}">${esc(m.title)}</h3><div class="meta">${rtBadge(m)}${kindTag(m)}<span>${[rating(m),runtime(m),m.genre].filter(Boolean).join(" · ")}</span><button class="star ${store.star[m.id]?"on":""}" data-star="${m.id}" title="Star: remind me">${store.star[m.id]?"★":"☆"}</button></div>${timesByTheatre(groups[m.i],nowSec)}</div></div>`;
   }
   if(!ms.length) h+=`<p class="muted">Nothing matches these filters on this day.</p>`;
   h+=`</div>`;
@@ -411,16 +452,22 @@ function vDay(){
   $$("#dates button").forEach(b=>b.onclick=()=>{state.day=b.dataset.d;render()});
   bindCommon();
 }
-function timeBtn(s,nowSec){return `<button class="time${store.plans[s.perf]?" plan":""}${s.utc<nowSec?" past":""}" data-p="${s.perf}">${t12(s.local)}${s.tags?`<small>${esc(s.tags.replace("Open caption","OC").replace("Sensory friendly","Sensory"))}</small>`:""}</button>`}
+// Times grouped under a badge per theatre, so a film playing at two places is never ambiguous.
+function timesByTheatre(list,nowSec){
+  const by={}; list.forEach(s=>{(by[s.th] ||= []).push(s)});
+  return Object.keys(by).map(Number).sort((a,b)=>a-b).map(t=>`<div class="throw">${thBadge(t)}<div class="times">${by[t].map(s=>timeBtn(s,nowSec)).join("")}</div></div>`).join("");
+}
+function thLegend(){return multiTh()?TH.map((t,i)=>thOn(i)?`<span><span class="thd th${i}" style="margin-right:5px"></span>${esc(t.short)}</span>`:"").join(""):""}
+function timeBtn(s,nowSec){return `<button class="time th${s.th}${store.plans[s.perf]?" plan":""}${s.utc<nowSec?" past":""}" data-p="${s.perf}" title="${esc(thName(s))}">${t12(s.local)}${s.tags?`<small>${esc(s.tags.replace("Open caption","OC").replace("Sensory friendly","Sensory"))}</small>`:""}</button>`}
 
 function vPlans(){
   const nowSec=Date.now()/1000, ps=plannedShows(), up=ps.filter(o=>o.s.utc>nowSec-3*3600);
   const stars=Object.keys(store.star).map(id=>M.find(m=>m.id===id)).filter(Boolean).sort((a,b)=>(byMovie[a.i]?.[0]?.local||"9").localeCompare(byMovie[b.i]?.[0]?.local||"9"));
   let h=`<div class="toolbar"><h2>Your plans & reminders</h2><button class="btn" id="icsall" ${up.length?"":"disabled"}>📅 All plans to calendar</button><button class="btn" id="share" ${up.length||stars.length?"":"disabled"}>🔗 Share with friends</button></div><div class="pgrid">`;
   h+=`<section class="card"><h3>Planned showtimes</h3>`;
-  h+=up.length?up.map(o=>{const m=M[o.s.m];return `<div class="pitem"><img src="${esc(m.poster)}" alt=""><div class="b"><div data-m="${m.i}">${esc(m.title)}</div><small>${niceDate(o.s.local.slice(0,10))} · ${t12(o.s.local)} · Aud ${o.s.aud}${o.s.tags?" · "+esc(o.s.tags):""}</small><textarea class="note" rows="1" data-note="${o.p}" placeholder="Note (who's going, seats…)">${esc(o.x.note||"")}</textarea></div><div style="text-align:right"><div class="when">${relDays(o.s.local.slice(0,10))}</div><a class="btn" style="margin-top:6px;padding:3px 9px" href="${esc(bookUrl(o.s))}" target="_blank" rel="noopener">Book</a><br><button class="star" data-unplan="${o.p}" title="Remove">✕</button></div></div>`}).join(""):`<div class="empty-note">Tap any showtime and choose “Add to my plans”. Planned shows are highlighted everywhere and trigger a reminder banner the day before.</div>`;
+  h+=up.length?up.map(o=>{const m=M[o.s.m];return `<div class="pitem"><img src="${esc(m.poster)}" alt=""><div class="b"><div data-m="${m.i}">${esc(m.title)}</div><small>${thBadge(o.s.th)} ${niceDate(o.s.local.slice(0,10))} · ${t12(o.s.local)}${o.s.aud!==""?" · Aud "+o.s.aud:""}${o.s.tags?" · "+esc(o.s.tags):""}</small><textarea class="note" rows="1" data-note="${o.p}" placeholder="Note (who's going, seats…)">${esc(o.x.note||"")}</textarea></div><div style="text-align:right"><div class="when">${relDays(o.s.local.slice(0,10))}</div><a class="btn" style="margin-top:6px;padding:3px 9px" href="${esc(bookUrl(o.s))}" target="_blank" rel="noopener">Book</a><br><button class="star" data-unplan="${o.p}" title="Remove">✕</button></div></div>`}).join(""):`<div class="empty-note">Tap any showtime and choose “Add to my plans”. Planned shows are highlighted everywhere and trigger a reminder banner the day before.</div>`;
   const gone=ps.length-up.length; if(gone) h+=`<div class="empty-note">${gone} past plan${gone>1?"s":""} hidden. <button class="chip" id="clearpast">Clear</button></div>`;
-  const lost=Object.keys(store.plans).filter(p=>!perf[p]).length; if(lost) h+=`<div class="empty-note">${lost} planned show${lost>1?"s are":" is"} no longer listed by Regal (moved or cancelled). <button class="chip" id="clearlost">Clear</button></div>`;
+  const lost=Object.keys(store.plans).filter(p=>!perf[p]).length; if(lost) h+=`<div class="empty-note">${lost} planned show${lost>1?"s are":" is"} no longer listed by the theater (moved or cancelled). <button class="chip" id="clearlost">Clear</button></div>`;
   h+=`</section><section class="card"><h3>★ Starred movies</h3>`;
   h+=stars.length?stars.map(m=>{const sh=byMovie[m.i]||[], f=sh[0]?.local.slice(0,10), r=store.star[m.id];
     const status=!sh.length?"Not listed right now":f>TODAY()?`Starts ${niceDate(f)} (${relDays(f)})`:`Playing now · last listed ${niceDate(m.last)}`;
@@ -433,44 +480,47 @@ function vPlans(){
   $$("[data-lead]").forEach(s=>s.onchange=()=>{store.star[s.dataset.lead].lead=+s.value;save();reminders()});
   const cp=$("#clearpast"); if(cp) cp.onclick=()=>{ps.filter(o=>o.s.utc<=nowSec-3*3600).forEach(o=>delete store.plans[o.p]);save();render()};
   const cl=$("#clearlost"); if(cl) cl.onclick=()=>{Object.keys(store.plans).filter(p=>!perf[p]).forEach(p=>delete store.plans[p]);save();render()};
-  $("#icsall").onclick=()=>downloadIcs(up.map(o=>o.s),"old-mill-plans.ics");
+  $("#icsall").onclick=()=>downloadIcs(up.map(o=>o.s),"movie-plans.ics");
   $("#share").onclick=sharePlans;
 }
 
 function bindCommon(){
   $$("[data-m]").forEach(e=>{if(e.tagName!=="TR"&&!e.classList.contains("cell")) e.onclick=()=>openMovie(+e.dataset.m)});
   $$("[data-star]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();toggleStar(b.dataset.star)});
-  $$(".time[data-p]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();openPop(b,+b.dataset.p)});
+  $$(".time[data-p]").forEach(b=>b.onclick=ev=>{ev.stopPropagation();openPop(b,b.dataset.p)});
 }
 function toggleStar(id){if(store.star[id]) delete store.star[id]; else {store.star[id]={lead:3,at:TODAY()}; toast("Starred. You'll get a reminder before it starts.")} save(); render(); if($("#scrim").classList.contains("show")) openMovie(M.find(m=>m.id===id).i, state.mday)}
 
 // ---------- movie modal ----------
 function openMovie(i,day){
-  const m=M[i], sh=byMovie[i]||[], days=[...new Set(sh.map(s=>s.local.slice(0,10)))];
+  const m=M[i], filt=!!(byMovie[i]&&byMovie[i].length), sh=filt?byMovie[i]:ALL.filter(s=>s.m===i), days=[...new Set(sh.map(s=>s.local.slice(0,10)))];
   state.mday=day&&days.includes(day)?day:days[0];
   const nowSec=Date.now()/1000;
   const dayTimes=sh.filter(s=>s.local.startsWith(state.mday));
   $("#modal").innerHTML=`<button class="x" id="mx" aria-label="Close">×</button>
   <div class="mhead"><img src="${esc(m.poster)}" alt=""><div><h2>${esc(m.title)}</h2>
-   <div class="meta">${rtBadge(m)}${kindTag(m)}<span>${[rating(m),runtime(m),m.genre].filter(Boolean).join(" · ")}</span></div>
+   <div class="meta">${(m.theatres||[0]).map(thBadge).join("")}${rtBadge(m)}${kindTag(m)}<span>${[rating(m),runtime(m),m.genre].filter(Boolean).join(" · ")}</span></div>
    <div class="muted" style="font-size:13px">${days.length} day${days.length>1?"s":""} listed · ${niceDate(days[0])}${days.length>1?" to "+niceDate(days[days.length-1]):""}</div>
    <div class="btns"><a class="btn pri" href="${esc(trailerUrl(m))}" target="_blank" rel="noopener">▶ ${m.trailer?"Trailer":"Find trailer"}</a>
    ${m.rtUrl?`<a class="btn" href="${esc(m.rtUrl)}" target="_blank" rel="noopener">🍅 Rotten Tomatoes</a>`:""}
-   <a class="btn" href="${esc(m.regal)}" target="_blank" rel="noopener">Regal page</a>
+   ${(m.pages||[]).map(([t,u])=>`<a class="btn" href="${esc(u)}" target="_blank" rel="noopener"><span class="thd th${t}"></span>${esc(t===0?"Regal page":thShort(t)+" page")}</a>`).join("")}
    <button class="btn" data-star="${m.id}">${store.star[m.id]?"★ Starred":"☆ Star & remind"}</button></div>
    <p>${esc(m.desc)}</p>
    ${m.directors?`<p class="muted" style="font-size:13px">Directed by ${esc(m.directors)}${m.cast?"<br>With "+esc(m.cast):""}</p>`:""}
   </div></div>
   <div class="mbody"><h4>Pick a day</h4><div class="dates" id="mdates">${days.map(x=>{const dt=parseYmd(x);return `<button data-d="${x}" class="${x===state.mday?"on":""}"><small>${x===TODAY()?"Today":DOW[dt.getDay()]}</small><b>${dt.getDate()}</b><small>${MON[dt.getMonth()]}</small></button>`}).join("")}</div>
-  <h4>${state.mday?niceDate(state.mday,true):""}</h4><div class="times">${dayTimes.map(s=>timeBtn(s,nowSec)).join("")||'<span class="muted">No showtimes listed.</span>'}</div></div>`;
+  <h4>${state.mday?niceDate(state.mday,true):""}</h4>${dayTimes.length?timesByTheatre(dayTimes,nowSec):'<span class="muted">No showtimes listed.</span>'}${filt?hiddenNote(i):""}</div>`;
   $("#scrim").classList.add("show"); document.body.style.overflow="hidden";
   $("#mx").onclick=closeModal;
   const on=$("#mdates .on"); if(on) on.scrollIntoView({inline:"center",block:"nearest"});
   $$("#mdates button").forEach(b=>b.onclick=()=>openMovie(i,b.dataset.d));
   $$("#modal [data-star]").forEach(b=>b.onclick=()=>toggleStar(b.dataset.star));
-  $$("#modal .time").forEach(b=>b.onclick=ev=>{ev.stopPropagation();openPop(b,+b.dataset.p)});
+  $$("#modal .time").forEach(b=>b.onclick=ev=>{ev.stopPropagation();openPop(b,b.dataset.p)});
   history.replaceState(null,"","#m="+m.id+(state.mday?"&d="+state.mday:""));
 }
+function hiddenNote(i){const n=ALL.filter(s=>s.m===i&&!thOn(s.th)).length; if(!n) return "";
+  const names=[...new Set(ALL.filter(s=>s.m===i&&!thOn(s.th)).map(s=>thShort(s.th)))].join(", ");
+  return `<p class="muted" style="font-size:12.5px;margin-top:10px">Also playing at ${esc(names)} (${n} show${n>1?"s":""}), hidden by your theater filter.</p>`}
 function closeModal(){$("#scrim").classList.remove("show");document.body.style.overflow="";closePop();history.replaceState(null,"",location.pathname+location.search)}
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeModal()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if($("#pop").classList.contains("show"))closePop();else closeModal()}});
@@ -478,8 +528,8 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if($("#pop").classL
 // ---------- showtime popover ----------
 function openPop(btn,p){
   const s=perf[p], m=M[s.m], pop=$("#pop"), planned=!!store.plans[p];
-  pop.innerHTML=`<h5>${esc(m.title)}</h5><div class="sub">${niceDate(s.local.slice(0,10),true)} · ${t12(s.local)} · Auditorium ${s.aud}${s.tags?"<br>"+esc(s.tags):""}</div>
-   <a class="btn pri" href="${esc(bookUrl(s))}" target="_blank" rel="noopener">🎟 Book on Regal</a>
+  pop.innerHTML=`<h5>${esc(m.title)}</h5><div class="sub">${thBadge(s.th)} ${niceDate(s.local.slice(0,10),true)} · ${t12(s.local)}${audText(s)?" · "+audText(s):""}<br>${esc(thName(s))}${s.tags?"<br>"+esc(s.tags):""}</div>
+   <a class="btn pri" href="${esc(bookUrl(s))}" target="_blank" rel="noopener">${bookLabel(s)}</a>
    <button class="btn" id="pplan">${planned?"✓ In my plans (remove)":"＋ Add to my plans"}</button>
    <div class="row2"><a class="btn" href="${esc(gcalUrl(s))}" target="_blank" rel="noopener">Google Cal</a><button class="btn" id="pics">Apple / .ics</button></div>`;
   pop.classList.add("show");
@@ -493,17 +543,18 @@ document.addEventListener("click",e=>{if(!e.target.closest("#pop")&&!e.target.cl
 // ---------- calendar ----------
 const pad=n=>String(n).padStart(2,"0");
 function utcStamp(sec){const d=new Date(sec*1000);return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+"T"+pad(d.getUTCHours())+pad(d.getUTCMinutes())+"00Z"}
-function endSec(s){return s.utc+((M[s.m].runtime||120)+PREVIEWS)*60}
+function endSec(s){return s.utc+((M[s.m].runtime||120)+(s.th===0?PREVIEWS:10))*60}
 function slugName(t){return t.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)}
-function details(s){const m=M[s.m];return `Regal Old Mill, auditorium ${s.aud}${s.tags?" ("+s.tags+")":""}. Runtime ${runtime(m)} plus about ${PREVIEWS} min of previews.\nTickets: ${bookUrl(s)}\nTrailer: ${trailerUrl(m)}`}
-function gcalUrl(s){const m=M[s.m];return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(m.title+" (movie)")+"&dates="+utcStamp(s.utc)+"/"+utcStamp(endSec(s))+"&details="+encodeURIComponent(details(s))+"&location="+encodeURIComponent("Regal Old Mill, "+D.theatre.address)}
+function where(s){return TH[s.th].name+", "+TH[s.th].address}
+function details(s){const m=M[s.m];return `${thName(s)}${audText(s)?", "+audText(s).toLowerCase():""}${s.tags?" ("+s.tags+")":""}.${m.runtime?" Runtime "+runtime(m)+(s.th===0?" plus about "+PREVIEWS+" min of previews":"")+".":""}\nTickets: ${bookUrl(s)}\nTrailer: ${trailerUrl(m)}`}
+function gcalUrl(s){const m=M[s.m];return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(m.title+" (movie)")+"&dates="+utcStamp(s.utc)+"/"+utcStamp(endSec(s))+"&details="+encodeURIComponent(details(s))+"&location="+encodeURIComponent(where(s))}
 function icsEsc(t){return t.replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/([,;])/g,"\\$1")}
 function fold(l){const o=[];while(l.length>74){o.push(l.slice(0,74));l=" "+l.slice(74)}o.push(l);return o.join("\r\n")}
 function downloadIcs(list,name){
   if(!list.length) return;
   const now=utcStamp(Date.now()/1000);
-  const ev=list.map(s=>["BEGIN:VEVENT",`UID:regal-0758-${s.perf}@oldmill-movies`,`DTSTAMP:${now}`,`DTSTART:${utcStamp(s.utc)}`,`DTEND:${utcStamp(endSec(s))}`,
-    `SUMMARY:${icsEsc(M[s.m].title+" (movie)")}`,`LOCATION:${icsEsc("Regal Old Mill, "+D.theatre.address)}`,`DESCRIPTION:${icsEsc(details(s))}`,`URL:${bookUrl(s)}`,
+  const ev=list.map(s=>["BEGIN:VEVENT",`UID:${s.th===0?"regal-0758-":""}${s.perf}@oldmill-movies`,`DTSTAMP:${now}`,`DTSTART:${utcStamp(s.utc)}`,`DTEND:${utcStamp(endSec(s))}`,
+    `SUMMARY:${icsEsc(M[s.m].title+" (movie)")}`,`LOCATION:${icsEsc(where(s))}`,`DESCRIPTION:${icsEsc(details(s))}`,`URL:${bookUrl(s)}`,
     "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Movie in 1 hour","TRIGGER:-PT60M","END:VALARM","END:VEVENT"].map(fold).join("\r\n"));
   const txt=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Old Mill Movies//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",...ev,"END:VCALENDAR"].join("\r\n");
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([txt],{type:"text/calendar;charset=utf-8"})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
@@ -513,7 +564,7 @@ function downloadIcs(list,name){
 function sharePlans(){
   const nowSec=Date.now()/1000, p=plannedShows().filter(o=>o.s.utc>nowSec).map(o=>o.p), st=Object.keys(store.star);
   const url=location.origin+location.pathname+"#share="+encodeURIComponent(JSON.stringify({p,s:st}));
-  const txt="My movie plans at Regal Old Mill:\n"+plannedShows().filter(o=>o.s.utc>nowSec).map(o=>`• ${M[o.s.m].title}, ${niceDate(o.s.local.slice(0,10))} ${t12(o.s.local)}`).join("\n");
+  const txt="My movie plans in Bend:\n"+plannedShows().filter(o=>o.s.utc>nowSec).map(o=>`• ${M[o.s.m].title}, ${thShort(o.s.th)}, ${niceDate(o.s.local.slice(0,10))} ${t12(o.s.local)}`).join("\n");
   if(navigator.share) navigator.share({title:"Movie plans",text:txt,url}).catch(()=>{});
   else navigator.clipboard?.writeText(txt+"\n"+url).then(()=>toast("Link copied"),()=>prompt("Copy this link",url));
 }
@@ -521,7 +572,7 @@ function importShare(raw){
   let o;try{o=JSON.parse(decodeURIComponent(raw))}catch(e){return}
   const p=(o.p||[]).filter(x=>perf[x]), s=(o.s||[]).filter(id=>M.some(m=>m.id===id));
   if(!p.length&&!s.length) return;
-  const names=[...p.map(x=>M[perf[x].m].title+" "+niceDate(perf[x].local.slice(0,10))+" "+t12(perf[x].local)),...s.map(id=>"★ "+M.find(m=>m.id===id).title)];
+  const names=[...p.map(x=>M[perf[x].m].title+", "+thShort(perf[x].th)+", "+niceDate(perf[x].local.slice(0,10))+" "+t12(perf[x].local)),...s.map(id=>"★ "+M.find(m=>m.id===id).title)];
   if(confirm("A friend shared these movie plans:\n\n"+names.join("\n")+"\n\nAdd them to your plans in this browser?")){
     p.forEach(x=>store.plans[x] ||= {note:"Shared by a friend",at:TODAY()}); s.forEach(id=>store.star[id] ||= {lead:3,at:TODAY()}); save(); state.view="plans";
   }
@@ -531,7 +582,7 @@ function importShare(raw){
 // ---------- misc ----------
 let tt; function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("show"),2200)}
 $$("#tabs button").forEach(b=>b.onclick=()=>{state.view=b.dataset.v;render();scrollTo(0,0)});
-$$("#filters .chip").forEach(b=>b.onclick=()=>{const k=b.dataset.k,f=b.dataset.f;if(k){state.kinds.has(k)?state.kinds.delete(k):state.kinds.add(k)}else{state.flags.has(f)?state.flags.delete(f):state.flags.add(f)}render()});
+$$("#filters .chip[data-k],#filters .chip[data-f]").forEach(b=>b.onclick=()=>{const k=b.dataset.k,f=b.dataset.f;if(k){state.kinds.has(k)?state.kinds.delete(k):state.kinds.add(k)}else{state.flags.has(f)?state.flags.delete(f):state.flags.add(f)}render()});
 let qt; $("#q").addEventListener("input",e=>{clearTimeout(qt);qt=setTimeout(()=>{state.q=e.target.value.trim().toLowerCase();render()},150)});
 let rw=innerWidth; addEventListener("resize",()=>{if(Math.abs(innerWidth-rw)>80&&state.view==="timeline"){rw=innerWidth;render()}});
 
