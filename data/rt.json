@@ -13,6 +13,13 @@
 "url": "https://www.rottentomatoes.com/m/above_the_below",
 "checked": "2026-11-23"
 },
+"Adam Sandler's Eight Crazy Nights|2002": {
+"title": "Adam Sandler's Eight Crazy Nights",
+"year": 2002,
+"score": "13",
+"url": "https://www.rottentomatoes.com/m/adam_sandlers_eight_crazy_nights",
+"checked": "2026-11-23"
+},
 "Addams Family Values|1993": {
 "title": "Addams Family Values",
 "year": 1993,
@@ -25,6 +32,13 @@
 "year": 2026,
 "score": "",
 "url": "https://www.rottentomatoes.com/m/avengers_doomsday",
+"checked": "2026-11-23"
+},
+"Batman Returns|0": {
+"title": "Batman Returns",
+"year": 1992,
+"score": "82",
+"url": "https://www.rottentomatoes.com/m/batman_returns",
 "checked": "2026-11-23"
 },
 "Behemoth!|2026": {
@@ -41,6 +55,13 @@
 "url": "https://www.rottentomatoes.com/m/bitter_christmas",
 "checked": "2026-11-18"
 },
+"Black Christmas|1974": {
+"title": "Black Christmas",
+"year": 1974,
+"score": "74",
+"url": "https://www.rottentomatoes.com/m/black_christmas_1974",
+"checked": "2026-11-23"
+},
 "Blade II|2002": {
 "title": "Blade II",
 "year": 2002,
@@ -48,11 +69,32 @@
 "url": "https://www.rottentomatoes.com/m/blade_ii",
 "checked": "2026-11-18"
 },
+"Brazil|0": {
+"title": "Brazil",
+"year": 1985,
+"score": "98",
+"url": "https://www.rottentomatoes.com/m/1003033-brazil",
+"checked": "2026-11-23"
+},
+"Bridget Jones's Diary|0": {
+"title": "Bridget Jones's Diary",
+"year": 2001,
+"score": "80",
+"url": "https://www.rottentomatoes.com/m/bridget_jones_diary",
+"checked": "2026-11-23"
+},
 "Cameron Winter at Carnegie Hall|2027": {
 "title": "Cameron Winter at Carnegie Hall",
 "year": 2026,
 "score": "100",
 "url": "https://www.rottentomatoes.com/m/cameron_winter_at_carnegie_hall",
+"checked": "2026-11-23"
+},
+"Christmas in Connecticut|1945": {
+"title": "Christmas in Connecticut",
+"year": 1945,
+"score": "100",
+"url": "https://www.rottentomatoes.com/m/1004141-christmas_in_connecticut",
 "checked": "2026-11-23"
 },
 "Clayface|2026": {
@@ -83,6 +125,13 @@
 "url": "https://www.rottentomatoes.com/m/die_hard",
 "checked": "2026-11-22"
 },
+"Dr. Seuss' The Grinch|2018": {
+"title": "Dr. Seuss' The Grinch",
+"year": 2018,
+"score": "60",
+"url": "https://www.rottentomatoes.com/m/the_grinch",
+"checked": "2026-11-23"
+},
 "Drummer Boy|2026": {
 "title": "Drummer Boy",
 "year": 2026,
@@ -104,12 +153,26 @@
 "url": "https://www.rottentomatoes.com/m/ebenezer_2026",
 "checked": "2026-11-18"
 },
+"Elf|2003": {
+"title": "Elf",
+"year": 2003,
+"score": "85",
+"url": "https://www.rottentomatoes.com/m/elf",
+"checked": "2026-11-23"
+},
 "Everest: The Other Side|2026": {
 "title": "Everest: The Other Side",
 "year": 2026,
 "score": "76",
 "url": "https://www.rottentomatoes.com/m/everest_the_other_side_2026",
 "checked": "2026-11-18"
+},
+"Eyes Wide Shut|0": {
+"title": "Eyes Wide Shut",
+"year": 1999,
+"score": "79",
+"url": "https://www.rottentomatoes.com/m/eyes_wide_shut",
+"checked": "2026-11-23"
 },
 "Fatherland|2026": {
 "title": "Fatherland",
@@ -298,6 +361,34 @@
 "year": 2026,
 "score": "",
 "url": "https://www.rottentomatoes.com/m/jumanji_open_world",
+"checked": "2026-11-23"
+},
+"Kiss Kiss Bang Bang|0": {
+"title": "Kiss Kiss, Bang Bang",
+"year": 2005,
+"score": "86",
+"url": "https://www.rottentomatoes.com/m/kiss_kiss_bang_bang",
+"checked": "2026-11-23"
+},
+"Klaus|2019": {
+"title": "Klaus",
+"year": 2019,
+"score": "95",
+"url": "https://www.rottentomatoes.com/m/klaus",
+"checked": "2026-11-23"
+},
+"Krampus|2015": {
+"title": "Krampus",
+"year": 2015,
+"score": "67",
+"url": "https://www.rottentomatoes.com/m/krampus",
+"checked": "2026-11-23"
+},
+"Lethal Weapon|0": {
+"title": "Lethal Weapon",
+"year": 1987,
+"score": "81",
+"url": "https://www.rottentomatoes.com/m/lethal_weapon",
 "checked": "2026-11-23"
 },
 "Love Actually|2003": {
@@ -489,6 +580,13 @@
 "url": "",
 "checked": "2026-11-23"
 },
+"Spider-Man: Brand New Day|2026": {
+"title": "Spider-Man: Brand New Day",
+"year": 2026,
+"score": "90",
+"url": "https://www.rottentomatoes.com/m/spider_man_brand_new_day",
+"checked": "2026-11-23"
+},
 "The Angry Birds Movie 3|2026": {
 "title": "The Angry Birds Movie 3",
 "year": 2026,
@@ -552,6 +650,13 @@
 "url": "https://www.rottentomatoes.com/m/1008166-general",
 "checked": "2026-11-18"
 },
+"The Godfather|0": {
+"title": "The Godfather",
+"year": 1972,
+"score": "97",
+"url": "https://www.rottentomatoes.com/m/the_godfather",
+"checked": "2026-11-23"
+},
 "The Holdovers|2023": {
 "title": "The Holdovers",
 "year": 2023,
@@ -594,12 +699,33 @@
 "url": "https://www.rottentomatoes.com/m/the_hunger",
 "checked": "2026-11-18"
 },
+"The King of Kings|2025": {
+"title": "The King of Kings",
+"year": 2025,
+"score": "60",
+"url": "https://www.rottentomatoes.com/m/the_king_of_kings",
+"checked": "2026-11-23"
+},
+"The Long Kiss Goodnight|0": {
+"title": "The Long Kiss Goodnight",
+"year": 1996,
+"score": "66",
+"url": "https://www.rottentomatoes.com/m/long_kiss_goodnight",
+"checked": "2026-11-23"
+},
 "The Maltese Falcon|1941": {
 "title": "The Maltese Falcon",
 "year": 1941,
 "score": "99",
 "url": "https://www.rottentomatoes.com/m/1013139-maltese_falcon",
 "checked": "2026-11-18"
+},
+"The Nice Guys|0": {
+"title": "The Nice Guys",
+"year": 2016,
+"score": "91",
+"url": "https://www.rottentomatoes.com/m/the_nice_guys",
+"checked": "2026-11-23"
 },
 "The Odyssey|2026": {
 "title": "The Odyssey",
@@ -615,6 +741,20 @@
 "url": "https://www.rottentomatoes.com/m/the_only_living_pickpocket_in_new_york",
 "checked": "2026-11-22"
 },
+"The Polar Express|2004": {
+"title": "The Polar Express",
+"year": 2004,
+"score": "55",
+"url": "https://www.rottentomatoes.com/m/the_polar_express",
+"checked": "2026-11-23"
+},
+"The Thin Man|0": {
+"title": "The Thin Man",
+"year": 1934,
+"score": "98",
+"url": "https://www.rottentomatoes.com/m/thin_man",
+"checked": "2026-11-23"
+},
 "The World's End|2013": {
 "title": "The World's End",
 "year": 2013,
@@ -628,6 +768,20 @@
 "score": "60",
 "url": "https://www.rottentomatoes.com/m/three_oclock_high",
 "checked": "2026-11-18"
+},
+"Tokyo Godfathers|0": {
+"title": "Tokyo Godfathers",
+"year": 2003,
+"score": "92",
+"url": "https://www.rottentomatoes.com/m/tokyo_godfathers",
+"checked": "2026-11-23"
+},
+"Trading Places|0": {
+"title": "Trading Places",
+"year": 1983,
+"score": "86",
+"url": "https://www.rottentomatoes.com/m/trading_places",
+"checked": "2026-11-23"
 },
 "Vanilla Sky|2001": {
 "title": "Vanilla Sky",
@@ -662,6 +816,13 @@
 "year": 2026,
 "score": "",
 "url": "https://www.rottentomatoes.com/m/werwulf",
+"checked": "2026-11-23"
+},
+"White Christmas|1954": {
+"title": "White Christmas",
+"year": 1954,
+"score": "75",
+"url": "https://www.rottentomatoes.com/m/white_christmas",
 "checked": "2026-11-23"
 },
 "Wicker|2026": {

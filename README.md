@@ -32,6 +32,10 @@ command and keeps its showtimes from the current `data/movies.json`.
    `data/movies.json` and `data/rt.json`, and prints per-theater show counts and which theaters used new vs kept data.
 7. Commit and push to `main`.
 
+Rotten Tomatoes lookups strip series labels in front of a title (`Naughty List:`, `CUT26:`, `HS26:` and any similar `CODE26:` tag,
+`Fangoria:`, `Vice Films:` and others in `SERIES_PREFIX` in build.py). A re-run with no year in its title is looked up as year 0,
+which `scrape_rt.js` treats as "exact title, any year". Odd titles get a fixed lookup in `RT_OVERRIDE`.
+
 Films are matched across theaters by title (punctuation, a trailing "(1988)" year and open-caption suffixes ignored); Regal's
 record supplies the details and the other theaters add their own page links.
 

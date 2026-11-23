@@ -49,7 +49,15 @@ RT_OVERRIDE = {
     "It's a Wonderful Life 80th Anniversary": ("It's a Wonderful Life", 1946),
     "Fangoria: Silent Night Deadly Night (1984)": ("Silent Night, Deadly Night", 1984),
     "The Odyssey (Reissue)": ("The Odyssey", 2026),
+    # Matched after series prefixes are stripped (see SERIES_PREFIX).
+    "Krampus on Krampusnacht": ("Krampus", 2015), "Eight Crazy Nights": ("Adam Sandler's Eight Crazy Nights", 2002),
+    "The Grinch": ("Dr. Seuss' The Grinch", 2018), "King of Kings": ("The King of Kings", 2025),
+    'Spider-Man: "Brand New" Brand New Day': ("Spider-Man: Brand New Day", 2026),
 }
+# Series / programme labels Regal puts in front of a title ("Naughty List: Brazil", "CUT26: Hoosiers (1986)",
+# "HS26: Elf (2003)"). Stripped before the Rotten Tomatoes lookup. Any CODE26-style tag is covered automatically.
+SERIES_PREFIX = re.compile(r"^(?:[A-Z]{2,6}\d{2}|Naughty List|Nice List|Vice Films|Fangoria|Fathom(?: Events)?|RealD 3D|"
+                           r"Studio Ghibli Fest(?: \d{4})?|Cult Classics?|Throwback Thursday|Flashback Cinema|IMAX)\s*:\s*", re.I)
 # Variant suffixes folded into the base movie (shown as a tag on the showtime).
 VARIANTS = [(re.compile(r"\s*\(Open Cap/Eng Sub\)\s*$", re.I), "Open caption"), (re.compile(r"\s*\(Sensory\)\s*$", re.I), "Sensory friendly"),
             (re.compile(r"\s+OCAP\s*$", re.I), "Open caption"), (re.compile(r"\s+\(?Open Caption(ed)?\)?\s*$", re.I), "Open caption")]
@@ -79,6 +87,7 @@ def split_variant(t):
 
 
 def rt_key(m):
+    """Rotten Tomatoes lookup key "Title|Year". Year 0 means "any year, exact title" (a series re-run with no year given)."""
     title = m["Title"]
     if NO_RT.search(title):
         return None
@@ -91,18 +100,27 @@ def rt_key(m):
     mm = re.search(r"\((\d{4})\)\s*$", title)
     if mm:
         year = int(mm.group(1)); title = title[:mm.start()].strip()
-    title = re.sub(r"^(CUT26|Vice Films|Fangoria)\s*:\s*", "", title)
-    title = re.sub(r"\s+(4K|\d+(st|nd|rd|th) Anniversary.*|Early Access|Insider Screenings|RealD 3D Fan Event|- Director's Cut)$", "", title, flags=re.I)
+    title, n = SERIES_PREFIX.subn("", title)
+    title = re.sub(r"\s+(4K|\d+(st|nd|rd|th) Anniversary.*|Early Access|Insider Screenings|RealD 3D Fan Event|- Director's Cut)$", "", title, flags=re.I).strip()
+    if title in RT_OVERRIDE:
+        t, y = RT_OVERRIDE[title]
+        return f"{t}|{y}"
     if title == "Sunrise on the Reaping":
         title = "The Hunger Games: Sunrise on the Reaping"
-    year = year or int((m.get("OpeningDate") or "2026")[:4])
-    return f"{title.strip()}|{year}"
+    if year is None and n:
+        year = 0          # a re-run in a series: its opening date is not the film's year
+    if year is None:
+        year = int((m.get("OpeningDate") or "2026")[:4])
+    return f"{title}|{year}"
 
 
 def indie_rt_key(title, year):
     if NO_RT.search(title):
         return None
-    t = re.sub(r"\s*\((19|20)\d{2}\)\s*$", "", title).strip()
+    t = SERIES_PREFIX.sub("", re.sub(r"\s*\((19|20)\d{2}\)\s*$", "", title).strip())
+    if t in RT_OVERRIDE:
+        t, y = RT_OVERRIDE[t]
+        return f"{t}|{y}"
     return f"{t}|{year or datetime.now(TZ).year}"
 
 
@@ -264,7 +282,7 @@ def queries(args):
             if not k:
                 continue
             c = cache.get(k)
-            recent = int(k.rsplit("|", 1)[1]) >= now.year - 1
+            recent = int(k.rsplit("|", 1)[1] or 0) >= now.year - 1
             stale = not c or not c.get("score") or (recent and c.get("checked", "") < (now - timedelta(days=6)).strftime("%Y-%m-%d"))
             if stale:
                 out.add(k)

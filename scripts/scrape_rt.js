@@ -13,7 +13,9 @@ for (let i = 0; i < Q.length; i += 8) {
         t: e.querySelector('[data-qa=info-name]')?.textContent.trim(), y: +(e.getAttribute('release-year') || 0),
         s: e.getAttribute('tomatometer-score'), u: e.querySelector('a[data-qa=info-name]')?.getAttribute('href')}));
       const ok = r => Math.abs(r.y - Y) <= 1;
-      const m = rows.find(r => norm(r.t) === norm(t) && ok(r)) || rows.find(r => (norm(r.t).includes(norm(t)) || norm(t).includes(norm(r.t))) && ok(r));
+      // Year 0 = a series re-run with no year given: take RT's top result with exactly this title.
+      const m = !Y ? rows.find(r => norm(r.t) === norm(t))
+        : rows.find(r => norm(r.t) === norm(t) && ok(r)) || rows.find(r => (norm(r.t).includes(norm(t)) || norm(t).includes(norm(r.t))) && ok(r));
       res[q] = m ? [m.t, m.y, m.s || '', m.u] : ['NOMATCH', rows.slice(0, 3).map(r => r.t + ' ' + r.y).join('; ')];
     } catch (e) { res[q] = ['ERR', String(e)]; }
   }));
