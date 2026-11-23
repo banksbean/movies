@@ -36,11 +36,10 @@ THEATRES = [
 TH = {t["id"]: i for i, t in enumerate(THEATRES)}
 THEATRE = THEATRES[0]
 
-# Not movies at all: opera/ballet/theatre broadcasts, concerts, TV specials, private rentals. Dropped at every
+# Not movies at all: opera/ballet/theatre broadcasts, TV specials, private rentals (concert films are kept). Dropped at every
 # theatre (no showtimes, no RT lookup). Film anniversaries, mystery movies and fan screenings of real films stay.
-NOT_MOVIE = re.compile(r"^(Met Op\b|Royal Ballet|Bolshoi|National Theatre|NT Live|Royal Opera|Opera:|Ballet:|BTS |Prince 3121|"
-                       r"(IMAX: )?George Michael|Andr[eé] Rieu|Doctor Who|Cameron Winter at)|"
-                       r"Private (Event|Party|Rental)|Rental at|Concert\b|\bin Concert|:\s*Live$|\bLive in (Cinemas|Concert)", re.I)
+NOT_MOVIE = re.compile(r"^(Met Op\b|Royal Ballet|Bolshoi|National Theatre|NT Live|Royal Opera|Opera:|Ballet:|Doctor Who)|"
+                       r"Private (Event|Party|Rental)|Rental at", re.I)
 
 # Live events and stage broadcasts: no Rotten Tomatoes page worth looking up.
 NO_RT = re.compile(r"^(Met Op|Royal Ballet|BTS |Prince 3121|IMAX: George|George Michael|Andre Rieu|Festive Fun|Monday Mystery|Doctor Who|National Theatre|Bolshoi|Fathom)|Mystery Movie", re.I)

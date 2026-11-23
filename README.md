@@ -36,8 +36,8 @@ Rotten Tomatoes lookups strip series labels in front of a title (`Naughty List:`
 `Fangoria:`, `Vice Films:` and others in `SERIES_PREFIX` in build.py). A re-run with no year in its title is looked up as year 0,
 which `scrape_rt.js` treats as "exact title, any year". Odd titles get a fixed lookup in `RT_OVERRIDE`.
 
-Only movies are listed. `NOT_MOVIE` in build.py drops opera, ballet and theatre broadcasts, concerts, TV specials and
-private rentals at every theater (including when a theater keeps its previous data); the build prints them as `droppedNonMovies`.
+Only movies are listed. `NOT_MOVIE` in build.py drops opera, ballet and theatre broadcasts, TV specials and
+private rentals at every theater (concert films stay) (including when a theater keeps its previous data); the build prints them as `droppedNonMovies`.
 
 Films are matched across theaters by title (punctuation, a trailing "(1988)" year and open-caption suffixes ignored); Regal's
 record supplies the details and the other theaters add their own page links.

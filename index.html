@@ -517,12 +517,20 @@ function openMovie(i,day){
   $$("#mdates button").forEach(b=>b.onclick=()=>openMovie(i,b.dataset.d));
   $$("#modal [data-star]").forEach(b=>b.onclick=()=>toggleStar(b.dataset.star));
   $$("#modal .time").forEach(b=>b.onclick=ev=>{ev.stopPropagation();openPop(b,b.dataset.p)});
-  history.replaceState(null,"","#m="+m.id+(state.mday?"&d="+state.mday:""));
+  // The open movie gets its own history entry, so a back swipe/button closes it instead of leaving the site.
+  const url="#m="+m.id+(state.mday?"&d="+state.mday:"");
+  if(history.state&&history.state.modal) history.replaceState({modal:1},"",url); else history.pushState({modal:1},"",url);
 }
 function hiddenNote(i){const n=ALL.filter(s=>s.m===i&&!thOn(s.th)).length; if(!n) return "";
   const names=[...new Set(ALL.filter(s=>s.m===i&&!thOn(s.th)).map(s=>thShort(s.th)))].join(", ");
   return `<p class="muted" style="font-size:12.5px;margin-top:10px">Also playing at ${esc(names)} (${n} show${n>1?"s":""}), hidden by your theater filter.</p>`}
-function closeModal(){$("#scrim").classList.remove("show");document.body.style.overflow="";closePop();history.replaceState(null,"",location.pathname+location.search)}
+function hideModal(){$("#scrim").classList.remove("show");document.body.style.overflow="";closePop()}
+function closeModal(){
+  if(!$("#scrim").classList.contains("show")) return;
+  if(history.state&&history.state.modal) history.back();   // popstate below hides it
+  else {hideModal();history.replaceState(null,"",location.pathname+location.search)}
+}
+addEventListener("popstate",()=>{if(!(history.state&&history.state.modal)&&$("#scrim").classList.contains("show")) hideModal()});
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeModal()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if($("#pop").classList.contains("show"))closePop();else closeModal()}});
 
@@ -596,7 +604,8 @@ async function boot(){
   const h=new URLSearchParams(location.hash.slice(1));
   if(h.get("share")) importShare(h.get("share"));
   render();
-  if(h.get("m")){const m=M.find(x=>x.id===h.get("m")); if(m&&byMovie[m.i]) openMovie(m.i,h.get("d"))}
+  // Opened from a shared #m= link: put the plain list underneath so back lands on the list, not off the site.
+  if(h.get("m")){const m=M.find(x=>x.id===h.get("m")); history.replaceState(null,"",location.pathname+location.search); if(m&&byMovie[m.i]) openMovie(m.i,h.get("d"))}
 }
 boot();
 if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
