@@ -36,6 +36,12 @@ THEATRES = [
 TH = {t["id"]: i for i, t in enumerate(THEATRES)}
 THEATRE = THEATRES[0]
 
+# Not movies at all: opera/ballet/theatre broadcasts, concerts, TV specials, private rentals. Dropped at every
+# theatre (no showtimes, no RT lookup). Film anniversaries, mystery movies and fan screenings of real films stay.
+NOT_MOVIE = re.compile(r"^(Met Op\b|Royal Ballet|Bolshoi|National Theatre|NT Live|Royal Opera|Opera:|Ballet:|BTS |Prince 3121|"
+                       r"(IMAX: )?George Michael|Andr[eé] Rieu|Doctor Who|Cameron Winter at)|"
+                       r"Private (Event|Party|Rental)|Rental at|Concert\b|\bin Concert|:\s*Live$|\bLive in (Cinemas|Concert)", re.I)
+
 # Live events and stage broadcasts: no Rotten Tomatoes page worth looking up.
 NO_RT = re.compile(r"^(Met Op|Royal Ballet|BTS |Prince 3121|IMAX: George|George Michael|Andre Rieu|Festive Fun|Monday Mystery|Doctor Who|National Theatre|Bolshoi|Fathom)|Mystery Movie", re.I)
 EVENT = re.compile(r"^(Met Op|Royal Ballet|BTS |Prince 3121|IMAX: George|George Michael|Andre Rieu|Monday Mystery|Doctor Who|National Theatre|Bolshoi|Festive Fun)|Live$|Concert|Fan Event|Insider Screening|Early Access|Mystery Movie", re.I)
@@ -268,6 +274,11 @@ def gather(args, cache, report):
         else:
             mv, sh = read_previous(prev, th_id, cache)
             report[th_id] = f"kept previous data ({len(sh)} shows)" + (" - pull missing or empty" if args.get(th_id) else "")
+        drop = {k for k, m in mv.items() if NOT_MOVIE.search(m["title"])}
+        if drop:
+            report.setdefault("droppedNonMovies", []).extend(sorted(mv[k]["title"] for k in drop))
+            mv = {k: m for k, m in mv.items() if k not in drop}
+            sh = [x for x in sh if x["key"] not in drop]
         parts.append((th_id, mv, sh))
     return parts
 
