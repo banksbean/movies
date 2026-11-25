@@ -9,6 +9,7 @@ color and label; a film playing at more than one theater lists its times grouped
 
 Static site for GitHub Pages: `index.html`, `sw.js` (offline cache), `data/movies.json` (showtimes), `data/rt.json` (RT score cache).
 Stars, plans and notes live in each visitor's browser (localStorage); "Share with friends" passes them by link.
+Share buttons (header icon for the site, "Share" in a movie box, "Share this showtime" in a showtime popup) use the phone's share sheet, or copy the link on desktop; movie and showtime links open that movie on that day.
 
 ## Weekly refresh
 

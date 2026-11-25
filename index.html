@@ -48,6 +48,9 @@ header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 9
 .search{flex:0 1 220px;min-width:140px;border:1px solid var(--line);background:var(--panel);padding:5px 11px;border-radius:999px;font-size:13px;outline:none}
 .search:focus{border-color:var(--accent)}
 .sep{width:1px;height:20px;background:var(--line);flex:none}
+.ishare{flex:none;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid var(--line);background:var(--panel);border-radius:999px;color:var(--muted);padding:0}
+.ishare:hover{border-color:var(--accent);color:var(--ink)}
+.ishare svg{width:17px;height:17px}
 main{padding:14px 0 60px}
 .banner{display:none;margin:0 0 12px;padding:10px 14px;border-radius:var(--r);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);font-size:14px}
 .banner.show{display:block}
@@ -202,11 +205,14 @@ footer{color:var(--muted);font-size:12px;padding:20px 0 30px;border-top:1px soli
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13.5px;z-index:70;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
 
+@media (max-width:400px){.tabs button{padding:6px 7px}}
 @media (max-width:760px){
   .wrap{padding:0 10px}
   .brand b{font-size:16px}
   .brand span{display:none}
   .tabs button{padding:6px 9px;font-size:13px}
+  .top{gap:8px}
+  .ishare{width:30px;height:30px}
   .tl .name{min-width:132px;max-width:132px}
   .tl .row{padding:4px 6px;gap:6px;height:44px}
   .tl .row img{display:none}
@@ -243,6 +249,7 @@ footer{color:var(--muted);font-size:12px;padding:20px 0 30px;border-top:1px soli
         <button data-v="day">Day</button>
         <button data-v="plans">Plans<span class="count" id="pcount" hidden></span></button>
       </nav>
+      <button class="ishare" id="sitesh" title="Share Bend Movies" aria-label="Share this site"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button>
     </div>
     <div class="filters" id="filters">
       <input class="search" id="q" type="search" placeholder="Search titles, cast…" autocomplete="off">
@@ -505,7 +512,8 @@ function openMovie(i,day){
    <div class="btns"><a class="btn pri" href="${esc(trailerUrl(m))}" target="_blank" rel="noopener">▶ ${m.trailer?"Trailer":"Find trailer"}</a>
    ${m.rtUrl?`<a class="btn" href="${esc(m.rtUrl)}" target="_blank" rel="noopener">🍅 Rotten Tomatoes</a>`:""}
    ${(m.pages||[]).map(([t,u])=>`<a class="btn" href="${esc(u)}" target="_blank" rel="noopener"><span class="thd th${t}"></span>${esc(t===0?"Regal page":thShort(t)+" page")}</a>`).join("")}
-   <button class="btn" data-star="${m.id}">${store.star[m.id]?"★ Starred":"☆ Star & remind"}</button></div>
+   <button class="btn" data-star="${m.id}">${store.star[m.id]?"★ Starred":"☆ Star & remind"}</button>
+   <button class="btn" id="msh">↗ Share</button></div>
    <p>${esc(m.desc)}</p>
    ${m.directors?`<p class="muted" style="font-size:13px">Directed by ${esc(m.directors)}${m.cast?"<br>With "+esc(m.cast):""}</p>`:""}
   </div></div>
@@ -513,6 +521,7 @@ function openMovie(i,day){
   <h4>${state.mday?niceDate(state.mday,true):""}</h4>${dayTimes.length?timesByTheatre(dayTimes,nowSec):'<span class="muted">No showtimes listed.</span>'}${filt?hiddenNote(i):""}</div>`;
   $("#scrim").classList.add("show"); document.body.style.overflow="hidden";
   $("#mx").onclick=closeModal;
+  $("#msh").onclick=()=>shareMovie(i);
   const on=$("#mdates .on"); if(on) on.scrollIntoView({inline:"center",block:"nearest"});
   $$("#mdates button").forEach(b=>b.onclick=()=>openMovie(i,b.dataset.d));
   $$("#modal [data-star]").forEach(b=>b.onclick=()=>toggleStar(b.dataset.star));
@@ -540,11 +549,13 @@ function openPop(btn,p){
   pop.innerHTML=`<h5>${esc(m.title)}</h5><div class="sub">${thBadge(s.th)} ${niceDate(s.local.slice(0,10),true)} · ${t12(s.local)}${audText(s)?" · "+audText(s):""}<br>${esc(thName(s))}${s.tags?"<br>"+esc(s.tags):""}</div>
    <a class="btn pri" href="${esc(bookUrl(s))}" target="_blank" rel="noopener">${bookLabel(s)}</a>
    <button class="btn" id="pplan">${planned?"✓ In my plans (remove)":"＋ Add to my plans"}</button>
-   <div class="row2"><a class="btn" href="${esc(gcalUrl(s))}" target="_blank" rel="noopener">Google Cal</a><button class="btn" id="pics">Apple / .ics</button></div>`;
+   <div class="row2"><a class="btn" href="${esc(gcalUrl(s))}" target="_blank" rel="noopener">Google Cal</a><button class="btn" id="pics">Apple / .ics</button></div>
+   <button class="btn" id="psh">↗ Share this showtime</button>`;
   pop.classList.add("show");
-  if(innerWidth>760){const r=btn.getBoundingClientRect();let x=Math.min(r.left,innerWidth-290),y=r.bottom+6;if(y+230>innerHeight)y=Math.max(10,r.top-236);pop.style.left=x+"px";pop.style.top=y+"px"}
+  if(innerWidth>760){const r=btn.getBoundingClientRect();let x=Math.min(r.left,innerWidth-290),y=r.bottom+6;if(y+275>innerHeight)y=Math.max(10,r.top-281);pop.style.left=x+"px";pop.style.top=y+"px"}
   $("#pplan").onclick=()=>{if(store.plans[p]) delete store.plans[p]; else {store.plans[p]={note:"",at:TODAY()};toast("Added to your plans")} save(); closePop(); if($("#scrim").classList.contains("show")) openMovie(s.m,s.local.slice(0,10)); render()};
   $("#pics").onclick=()=>{downloadIcs([s],slugName(m.title)+".ics");closePop()};
+  $("#psh").onclick=()=>{shareShowtime(s);closePop()};
 }
 function closePop(){$("#pop").classList.remove("show")}
 document.addEventListener("click",e=>{if(!e.target.closest("#pop")&&!e.target.closest(".time"))closePop()});
@@ -570,12 +581,28 @@ function downloadIcs(list,name){
 }
 
 // ---------- sharing (via link; no accounts) ----------
+const SITE=()=>location.origin+location.pathname;
+// Native share sheet where the device has one (phones, Safari), otherwise copy text + link to the clipboard.
+function shareLink(title,text,url){
+  if(navigator.share) return navigator.share({title,text,url}).catch(()=>{});
+  const all=(text?text+"\n":"")+url;
+  if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(all).then(()=>toast("Link copied"),()=>prompt("Copy this link",url));
+  else prompt("Copy this link",url);
+}
+function shareSite(){shareLink("Bend Movies","What's playing at Bend movie theaters",SITE())}
+function shareMovie(i){
+  const m=M[i], ths=[...new Set(ALL.filter(s=>s.m===i).map(s=>thShort(s.th)))].join(", ");
+  shareLink(m.title,`${m.title}${ths?" at "+ths:""}: showtimes on Bend Movies`,SITE()+"#m="+encodeURIComponent(m.id)+(state.mday?"&d="+state.mday:""));
+}
+function shareShowtime(s){
+  const m=M[s.m], d=s.local.slice(0,10);
+  shareLink(m.title,`${m.title}, ${thName(s)}, ${niceDate(d,true)} at ${t12(s.local)}. Want to go?`,SITE()+"#m="+encodeURIComponent(m.id)+"&d="+d);
+}
 function sharePlans(){
   const nowSec=Date.now()/1000, p=plannedShows().filter(o=>o.s.utc>nowSec).map(o=>o.p), st=Object.keys(store.star);
   const url=location.origin+location.pathname+"#share="+encodeURIComponent(JSON.stringify({p,s:st}));
   const txt="My movie plans in Bend:\n"+plannedShows().filter(o=>o.s.utc>nowSec).map(o=>`• ${M[o.s.m].title}, ${thShort(o.s.th)}, ${niceDate(o.s.local.slice(0,10))} ${t12(o.s.local)}`).join("\n");
-  if(navigator.share) navigator.share({title:"Movie plans",text:txt,url}).catch(()=>{});
-  else navigator.clipboard?.writeText(txt+"\n"+url).then(()=>toast("Link copied"),()=>prompt("Copy this link",url));
+  shareLink("Movie plans",txt,url);
 }
 function importShare(raw){
   let o;try{o=JSON.parse(decodeURIComponent(raw))}catch(e){return}
@@ -589,6 +616,7 @@ function importShare(raw){
 }
 
 // ---------- misc ----------
+$("#sitesh").onclick=shareSite;
 let tt; function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("show"),2200)}
 $$("#tabs button").forEach(b=>b.onclick=()=>{state.view=b.dataset.v;render();scrollTo(0,0)});
 $$("#filters .chip[data-k],#filters .chip[data-f]").forEach(b=>b.onclick=()=>{const k=b.dataset.k,f=b.dataset.f;if(k){state.kinds.has(k)?state.kinds.delete(k):state.kinds.add(k)}else{state.flags.has(f)?state.flags.delete(f):state.flags.add(f)}render()});
